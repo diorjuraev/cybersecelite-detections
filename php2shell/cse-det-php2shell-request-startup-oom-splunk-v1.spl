@@ -1,0 +1,11 @@
+`php2shell_php_runtime_logs`
+("Allowed memory size" OR "Out of memory") "Unknown" "line 0"
+| eval php_message=_raw
+| rex field=php_message "(?is)\b(?:allowed\s+memory\s+size\s+of\s+(?<php_memory_limit_bytes>[0-9]+)\s+bytes\s+exhausted|out\s+of\s+memory\s+\(\s*allocated\s+(?<php_allocated_bytes>[0-9]+)\s+bytes\s*\))(?:\s+at\s+\S+:[0-9]+)?(?:\s*\(\s*tried\s+to\s+allocate\s+(?<php_attempted_allocation_bytes>[0-9]+)\s+bytes\s*\))?\s+in\s+Unknown\s+on\s+line\s+0\b"
+| where isnotnull(php_memory_limit_bytes) OR isnotnull(php_allocated_bytes)
+| eval oom_kind=if(isnotnull(php_allocated_bytes), "system_allocation_unpatched_only", "memory_limit")
+| eval dest=coalesce(dest, server_name, hostname, host, "unknown"), site=coalesce(site, vhost, http_host, "unknown"), src=coalesce(src, src_ip, client_ip, clientip, "unknown"), sample=substr(replace(php_message, "[\r\n]+", " "), 1, 512)
+| stats count AS event_count min(_time) AS firstTime max(_time) AS lastTime values(src) AS src values(site) AS site values(oom_kind) AS oom_kind values(php_memory_limit_bytes) AS php_memory_limit_bytes values(php_allocated_bytes) AS php_allocated_bytes values(php_attempted_allocation_bytes) AS php_attempted_allocation_bytes values(sample) AS sample BY dest source sourcetype
+| eval detection_name="PHP2Shell request-startup OOM fatal", severity="high", confidence="medium", risk_score=80, risk_object=dest, risk_object_type="system", cve="CVE-2026-109618", related_cve="CVE-2026-109619", mitre_attack="T1190"
+| convert timeformat="%Y-%m-%dT%H:%M:%S%z" ctime(firstTime) ctime(lastTime)
+| table firstTime lastTime dest src site event_count oom_kind php_memory_limit_bytes php_allocated_bytes php_attempted_allocation_bytes source sourcetype sample detection_name cve related_cve mitre_attack severity confidence risk_score risk_object risk_object_type

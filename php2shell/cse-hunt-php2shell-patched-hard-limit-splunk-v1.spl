@@ -1,0 +1,11 @@
+`php2shell_php_runtime_logs`
+"Hard memory limit" "bytes exhausted"
+| eval php_message=_raw
+| rex field=php_message "(?is)\bhard\s+memory\s+limit\s+of\s+(?<php_hard_limit_bytes>[0-9]+)\s+bytes\s+exhausted(?:\s+at\s+\S+:[0-9]+)?\s*\(\s*tried\s+to\s+allocate\s+(?<php_attempted_allocation_bytes>[0-9]+)\s+bytes\s*\)\s+in\s+(?<php_error_file>.+?)\s+on\s+line\s+(?<php_error_line>[0-9]+)"
+| where isnotnull(php_hard_limit_bytes)
+| eval request_startup=if(lower(php_error_file)="unknown" AND php_error_line="0", "yes", "no")
+| eval dest=coalesce(dest, server_name, hostname, host, "unknown"), site=coalesce(site, vhost, http_host, "unknown"), src=coalesce(src, src_ip, client_ip, clientip, "unknown"), sample=substr(replace(php_message, "[\r\n]+", " "), 1, 512)
+| stats count AS event_count min(_time) AS firstTime max(_time) AS lastTime values(src) AS src values(site) AS site values(request_startup) AS request_startup values(php_error_file) AS php_error_file values(php_hard_limit_bytes) AS php_hard_limit_bytes values(php_attempted_allocation_bytes) AS php_attempted_allocation_bytes values(sample) AS sample BY dest source sourcetype
+| eval detection_name="PHP2Shell-patched runtime killed a worker at the hard memory limit", severity="medium", confidence="low", risk_score=40, risk_object=dest, risk_object_type="system", related_cves="CVE-2026-109618,CVE-2026-109619", mitre_attack="T1190"
+| convert timeformat="%Y-%m-%dT%H:%M:%S%z" ctime(firstTime) ctime(lastTime)
+| table firstTime lastTime dest src site event_count request_startup php_error_file php_hard_limit_bytes php_attempted_allocation_bytes source sourcetype sample detection_name related_cves mitre_attack severity confidence risk_score risk_object risk_object_type

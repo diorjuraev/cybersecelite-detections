@@ -1,0 +1,11 @@
+| tstats summariesonly=false allow_old_summaries=false fillnull_value="unknown" count AS event_count min(_time) AS firstTime max(_time) AS lastTime
+    FROM datamodel=Endpoint.Processes
+    WHERE (Processes.parent_process_name="php-fpm*" OR Processes.parent_process_name="php-cgi*" OR Processes.parent_process_name="httpd*" OR Processes.parent_process_name="apache2*" OR Processes.parent_process_name="frankenphp*" OR Processes.parent_process_name="lsphp*" OR Processes.parent_process_name="lshttpd*" OR Processes.parent_process_name="w3wp.exe")
+    BY Processes.dest Processes.user Processes.parent_process_name Processes.parent_process Processes.parent_process_id Processes.process_name Processes.process_exec Processes.original_file_name Processes.process Processes.process_id Processes.process_path Processes.vendor_product
+| rename Processes.* AS *
+| eval original_l=replace(lower(original_file_name), "^.*[/\\\\]", ""), exec_l=replace(lower(process_exec), "^.*[/\\\\]", ""), name_l=replace(lower(process_name), "^.*[/\\\\]", "")
+| eval child_l=case(match(original_l, "^((sh|bash|dash|ash|zsh|ksh|busybox|cmd|powershell|pwsh)([.]exe)?|wscript[.]exe|cscript[.]exe)$"), original_l, match(exec_l, "^((sh|bash|dash|ash|zsh|ksh|busybox|cmd|powershell|pwsh)([.]exe)?|wscript[.]exe|cscript[.]exe)$"), exec_l, match(name_l, "^((sh|bash|dash|ash|zsh|ksh|busybox|cmd|powershell|pwsh)([.]exe)?|wscript[.]exe|cscript[.]exe)$"), name_l)
+| where isnotnull(child_l)
+| eval detection_name="PHP or web worker spawned a command shell", related_cves="CVE-2026-109618,CVE-2026-109619", severity="high", confidence="medium", risk_score=70, risk_object=dest, risk_object_type="system", mitre_attack=case(in(child_l, "powershell", "powershell.exe", "pwsh", "pwsh.exe"), "T1059.001", in(child_l, "cmd", "cmd.exe"), "T1059.003", in(child_l, "sh", "sh.exe", "bash", "bash.exe", "dash", "dash.exe", "ash", "ash.exe", "zsh", "zsh.exe", "ksh", "ksh.exe", "busybox", "busybox.exe"), "T1059.004", 1=1, "T1059")
+| convert timeformat="%Y-%m-%dT%H:%M:%S%z" ctime(firstTime) ctime(lastTime)
+| table firstTime lastTime dest user parent_process_name parent_process parent_process_id process_name process_exec original_file_name process process_id process_path vendor_product event_count detection_name related_cves mitre_attack severity confidence risk_score risk_object risk_object_type
