@@ -1,12 +1,14 @@
 # CyberSecElite detections
 
-Detection engineering by **Diyorbek Juraev** ([CyberSecElite](https://cybersecelite.com)).
-This repository holds Splunk searches, hunts, offline tests and the research behind them,
-focused on vulnerabilities that are being exploited in the wild.
+Detection engineering published by **[CyberSecElite, LLC](https://cybersecelite.com)**,
+written by **Diyorbek Juraev**. This repository holds Splunk searches, hunts, offline
+tests and the research behind them, focused on vulnerabilities that are being exploited
+in the wild. Each pack is also published, with its trust state and validation ledger, in
+the [CyberSecElite Intelligence hub](https://cybersecelite.com/intelligence/).
 
-| Pack | Covers | Version | Status |
-|---|---|---|---|
-| [php2shell](php2shell/) | PHP runtime RCE: CVE-2026-109618 and CVE-2026-109619 (CISA KEV, added 2026-10-26) | 1.0 (2026-11-06) | Experimental |
+| Pack | Covers | Version | Status | On cybersecelite.com |
+|---|---|---|---|---|
+| [php2shell](php2shell/) | PHP runtime RCE: CVE-2026-109618 and CVE-2026-109619 (CISA KEV, added 2026-10-26) | 1.0 (2026-11-06) | Experimental | [Advisory](https://cybersecelite.com/intelligence/use-cases/php2shell-php-runtime-rce/) |
 
 ## Conventions
 
@@ -20,7 +22,8 @@ focused on vulnerabilities that are being exploited in the wild.
   apart unnoticed.
 - **How packs are prepared.** Drafts are written with AI assistance, then verified by
   the author against the cited sources before release. Each pack's README says what was
-  and was not validated.
+  and was not validated. On cybersecelite.com, these packs carry the "AI Generated"
+  trust label until recorded validation or a named analyst review supports a higher one.
 
 ## Reporting issues
 
@@ -29,4 +32,5 @@ Field results from real environments are especially welcome.
 
 ## License
 
-[Apache License 2.0](LICENSE).
+Copyright 2026 CyberSecElite, LLC. Licensed under the [Apache License 2.0](LICENSE);
+see [NOTICE](NOTICE).

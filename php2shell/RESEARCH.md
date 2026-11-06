@@ -1,6 +1,6 @@
 # PHP2Shell — primary-source research for Splunk detection
 
-**Author:** Diyorbek Juraev, CyberSecElite · **First written:** 2026-10-21 · **Re-verified:** 2026-11-06
+**Author:** Diyorbek Juraev · **Publisher:** CyberSecElite, LLC · **First written:** 2026-10-21 · **Re-verified:** 2026-11-06
 **Purpose:** Background research behind the Splunk detection pack in [README.md](README.md).
 **Access date for every source in the body:** 2026-10-21.
 **How this was prepared:** The first draft was written with AI assistance. Every factual

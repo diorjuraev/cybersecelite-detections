@@ -1,7 +1,8 @@
 # PHP2Shell Splunk detection pack
 
-**Author:** Diyorbek Juraev, CyberSecElite  
+**Author:** Diyorbek Juraev · **Publisher:** CyberSecElite, LLC ([cybersecelite.com](https://cybersecelite.com))  
 **Version:** 1.0 · **Published:** 2026-11-06 · **Status:** Experimental  
+**Also published at:** [cybersecelite.com/intelligence/use-cases/php2shell-php-runtime-rce](https://cybersecelite.com/intelligence/use-cases/php2shell-php-runtime-rce/)  
 **Covers:** CVE-2026-109618 (primary), CVE-2026-109619 (shared OOM trigger), and generic
 PHP web-worker post-exploitation  
 **Background research:** [RESEARCH.md](RESEARCH.md)
